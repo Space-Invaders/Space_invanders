@@ -9,6 +9,7 @@ package model;
  * @author luidjy
  */
 public class Joueur {
+
     private int idJoueur;
     private String pseudo;
 
@@ -38,6 +39,9 @@ public class Joueur {
 
     @Override
     public String toString() {
-        return "Joueur{" + "idJoueur=" + idJoueur + ", pseudo=" + pseudo + '}';
+        return "Joueur{"
+                + "idJoueur=" + idJoueur
+                + ", pseudo='" + pseudo + '\''
+                + '}';
     }
 }

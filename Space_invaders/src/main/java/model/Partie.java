@@ -11,31 +11,40 @@ import java.sql.Timestamp;
  * @author luidjy
  */
 public class Partie {
-    private int idPartie;
+
+    private long idPartie;
+    private int idJoueur;
     private int score;
     private int aliensDetruits;
     private String resultat;
     private Timestamp datePartie;
-    private int idJoueur;
 
     public Partie() {
     }
 
-    public Partie(int idPartie, int score, int aliensDetruits, String resultat, Timestamp datePartie, int idJoueur) {
+    public Partie(long idPartie, int idJoueur, int score, int aliensDetruits, String resultat, Timestamp datePartie) {
         this.idPartie = idPartie;
+        this.idJoueur = idJoueur;
         this.score = score;
         this.aliensDetruits = aliensDetruits;
         this.resultat = resultat;
         this.datePartie = datePartie;
-        this.idJoueur = idJoueur;
     }
 
-    public int getIdPartie() {
+    public long getIdPartie() {
         return idPartie;
     }
 
-    public void setIdPartie(int idPartie) {
+    public void setIdPartie(long idPartie) {
         this.idPartie = idPartie;
+    }
+
+    public int getIdJoueur() {
+        return idJoueur;
+    }
+
+    public void setIdJoueur(int idJoueur) {
+        this.idJoueur = idJoueur;
     }
 
     public int getScore() {
@@ -70,24 +79,15 @@ public class Partie {
         this.datePartie = datePartie;
     }
 
-    public int getIdJoueur() {
-        return idJoueur;
-    }
-
-    public void setIdJoueur(int idJoueur) {
-        this.idJoueur = idJoueur;
-    }
-
     @Override
     public String toString() {
-        return "Partie{" +
-                "idPartie=" + idPartie +
-                ", score=" + score +
-                ", aliensDetruits=" + aliensDetruits +
-                ", resultat=" + resultat +
-                ", datePartie=" + datePartie +
-                ", idJoueur=" + idJoueur +
-                '}';
+        return "Partie{"
+                + "idPartie=" + idPartie
+                + ", idJoueur=" + idJoueur
+                + ", score=" + score
+                + ", aliensDetruits=" + aliensDetruits
+                + ", resultat='" + resultat + '\''
+                + ", datePartie=" + datePartie
+                + '}';
     }
-    
 }

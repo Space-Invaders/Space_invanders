@@ -5,107 +5,106 @@
 package dao;
 
 import POOJDBC.Connectivity;
+import model.Joueur;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import model.Joueur;
 
 /**
  *
  * @author luidjy
  */
 public class JoueurDAO {
-    public static void insert(Joueur joueur) {
-        String sql = "INSERT INTO joueur(pseudo) VALUES (?)";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+    public int createJoueur(Joueur joueur) {
+        String sql = "INSERT INTO public.joueur (pseudo) VALUES (?)";
+
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, joueur.getPseudo());
-            ps.executeUpdate();
-            System.out.println("Joueur ajouté avec succès.");
 
-        } catch (Exception e) {
-            System.out.println("Erreur insert joueur = " + e.getMessage());
+            return ps.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Erreur createJoueur : " + e.getMessage());
+            return 0;
         }
     }
 
-    public static List<Joueur> findAll() {
-        List<Joueur> liste = new ArrayList<>();
-        String sql = "SELECT * FROM joueur ORDER BY id_joueur";
+    public List<Joueur> findAll() {
+        List<Joueur> joueurs = new ArrayList<>();
+        String sql = "SELECT id_joueur, pseudo FROM public.joueur";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Joueur j = new Joueur();
-                j.setIdJoueur(rs.getInt("id_joueur"));
-                j.setPseudo(rs.getString("pseudo"));
-                liste.add(j);
+                Joueur joueur = new Joueur();
+                joueur.setIdJoueur(rs.getInt("id_joueur"));
+                joueur.setPseudo(rs.getString("pseudo"));
+                joueurs.add(joueur);
             }
 
-        } catch (Exception e) {
-            System.out.println("Erreur findAll joueur = " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Erreur findAll Joueur : " + e.getMessage());
         }
 
-        return liste;
+        return joueurs;
     }
 
-    public static Joueur findById(int id) {
-        String sql = "SELECT * FROM joueur WHERE id_joueur = ?";
-        Joueur j = null;
+    public Joueur findById(int idJoueur) {
+        String sql = "SELECT id_joueur, pseudo FROM public.joueur WHERE id_joueur = ?";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
+            ps.setInt(1, idJoueur);
 
-            if (rs.next()) {
-                j = new Joueur();
-                j.setIdJoueur(rs.getInt("id_joueur"));
-                j.setPseudo(rs.getString("pseudo"));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Joueur joueur = new Joueur();
+                    joueur.setIdJoueur(rs.getInt("id_joueur"));
+                    joueur.setPseudo(rs.getString("pseudo"));
+                    return joueur;
+                }
             }
 
-        } catch (Exception e) {
-            System.out.println("Erreur findById joueur = " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Erreur findById Joueur : " + e.getMessage());
         }
 
-        return j;
+        return null;
     }
 
-    public static void update(Joueur joueur) {
-        String sql = "UPDATE joueur SET pseudo = ? WHERE id_joueur = ?";
+    public int updateJoueur(Joueur joueur) {
+        String sql = "UPDATE public.joueur SET pseudo = ? WHERE id_joueur = ?";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, joueur.getPseudo());
             ps.setInt(2, joueur.getIdJoueur());
-            ps.executeUpdate();
-            System.out.println("Joueur modifié avec succès.");
 
-        } catch (Exception e) {
-            System.out.println("Erreur update joueur = " + e.getMessage());
+            return ps.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Erreur updateJoueur : " + e.getMessage());
+            return 0;
         }
     }
 
-    public static void delete(int id) {
-        String sql = "DELETE FROM joueur WHERE id_joueur = ?";
+    public int deleteJoueur(int idJoueur) {
+        String sql = "DELETE FROM public.joueur WHERE id_joueur = ?";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
-            ps.executeUpdate();
-            System.out.println("Joueur supprimé avec succès.");
+            ps.setInt(1, idJoueur);
 
-        } catch (Exception e) {
-            System.out.println("Erreur delete joueur = " + e.getMessage());
+            return ps.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Erreur deleteJoueur : " + e.getMessage());
+            return 0;
         }
     }
-    
 }

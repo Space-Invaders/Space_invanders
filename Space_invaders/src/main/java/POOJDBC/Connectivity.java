@@ -21,9 +21,9 @@ public class Connectivity {
         try{
             Class.forName("org.postgresql.Driver");
             connection = (Connection) DriverManager.getConnection(db.getConnectionUrl(),db.getUserName(),db.getPassWord());
-            System.out.println("Database connected = "+connection);
+           // System.out.println("Database connected = "+connection);
         }catch(Exception e){
-            System.out.println("Erreur connexion DB = "+e.getMessage());
+           // System.out.println("Erreur connexion DB = "+e.getMessage());
         }
         return connection;
     }

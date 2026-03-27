@@ -5,141 +5,126 @@
 package dao;
 
 import POOJDBC.Connectivity;
+import model.Partie;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import model.Partie;
 
 /**
  *
  * @author luidjy
  */
 public class PartieDAO {
-    public static void insert(Partie partie) {
-        String sql = "INSERT INTO partie(score, aliens_detruits, resultat, id_joueur) VALUES (?, ?, ?, ?)";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+    public int createPartie(Partie partie) {
+        String sql = "INSERT INTO public.partie (id_joueur, score, aliens_detruits, resultat, date_partie) "
+                + "VALUES (?, ?, ?, ?, ?)";
 
-            ps.setInt(1, partie.getScore());
-            ps.setInt(2, partie.getAliensDetruits());
-            ps.setString(3, partie.getResultat());
-            ps.setInt(4, partie.getIdJoueur());
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.executeUpdate();
-            System.out.println("Partie ajoutée avec succès.");
+            ps.setInt(1, partie.getIdJoueur());
+            ps.setInt(2, partie.getScore());
+            ps.setInt(3, partie.getAliensDetruits());
+            ps.setString(4, partie.getResultat());
+            ps.setTimestamp(5, partie.getDatePartie());
 
-        } catch (Exception e) {
-            System.out.println("Erreur insert partie = " + e.getMessage());
+            return ps.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Erreur createPartie : " + e.getMessage());
+            return 0;
         }
     }
 
-    public static List<Partie> findAll() {
-        List<Partie> liste = new ArrayList<>();
-        String sql = "SELECT * FROM partie ORDER BY id_partie";
+    public List<Partie> findAll() {
+        List<Partie> parties = new ArrayList<>();
+        String sql = "SELECT id_partie, id_joueur, score, aliens_detruits, resultat, date_partie FROM public.partie";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Partie p = new Partie();
-                p.setIdPartie(rs.getInt("id_partie"));
-                p.setScore(rs.getInt("score"));
-                p.setAliensDetruits(rs.getInt("aliens_detruits"));
-                p.setResultat(rs.getString("resultat"));
-                p.setDatePartie(rs.getTimestamp("date_partie"));
-                p.setIdJoueur(rs.getInt("id_joueur"));
-                liste.add(p);
+                Partie partie = new Partie();
+                partie.setIdPartie(rs.getLong("id_partie"));
+                partie.setIdJoueur(rs.getInt("id_joueur"));
+                partie.setScore(rs.getInt("score"));
+                partie.setAliensDetruits(rs.getInt("aliens_detruits"));
+                partie.setResultat(rs.getString("resultat"));
+                partie.setDatePartie(rs.getTimestamp("date_partie"));
+                parties.add(partie);
             }
 
-        } catch (Exception e) {
-            System.out.println("Erreur findAll partie = " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Erreur findAll Partie : " + e.getMessage());
         }
 
-        return liste;
+        return parties;
     }
 
-    public static Partie findById(int id) {
-        String sql = "SELECT * FROM partie WHERE id_partie = ?";
-        Partie p = null;
+    public Partie findById(long idPartie) {
+        String sql = "SELECT id_partie, id_joueur, score, aliens_detruits, resultat, date_partie "
+                + "FROM public.partie WHERE id_partie = ?";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
+            ps.setLong(1, idPartie);
 
-            if (rs.next()) {
-                p = new Partie();
-                p.setIdPartie(rs.getInt("id_partie"));
-                p.setScore(rs.getInt("score"));
-                p.setAliensDetruits(rs.getInt("aliens_detruits"));
-                p.setResultat(rs.getString("resultat"));
-                p.setDatePartie(rs.getTimestamp("date_partie"));
-                p.setIdJoueur(rs.getInt("id_joueur"));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Partie partie = new Partie();
+                    partie.setIdPartie(rs.getLong("id_partie"));
+                    partie.setIdJoueur(rs.getInt("id_joueur"));
+                    partie.setScore(rs.getInt("score"));
+                    partie.setAliensDetruits(rs.getInt("aliens_detruits"));
+                    partie.setResultat(rs.getString("resultat"));
+                    partie.setDatePartie(rs.getTimestamp("date_partie"));
+                    return partie;
+                }
             }
 
-        } catch (Exception e) {
-            System.out.println("Erreur findById partie = " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Erreur findById Partie : " + e.getMessage());
         }
 
-        return p;
+        return null;
     }
 
-    public static void update(Partie partie) {
-        String sql = "UPDATE partie SET score = ?, aliens_detruits = ?, resultat = ?, id_joueur = ? WHERE id_partie = ?";
+    public int updatePartie(Partie partie) {
+        String sql = "UPDATE public.partie "
+                + "SET id_joueur = ?, score = ?, aliens_detruits = ?, resultat = ?, date_partie = ? "
+                + "WHERE id_partie = ?";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setInt(1, partie.getScore());
-            ps.setInt(2, partie.getAliensDetruits());
-            ps.setString(3, partie.getResultat());
-            ps.setInt(4, partie.getIdJoueur());
-            ps.setInt(5, partie.getIdPartie());
+            ps.setInt(1, partie.getIdJoueur());
+            ps.setInt(2, partie.getScore());
+            ps.setInt(3, partie.getAliensDetruits());
+            ps.setString(4, partie.getResultat());
+            ps.setTimestamp(5, partie.getDatePartie());
+            ps.setLong(6, partie.getIdPartie());
 
-            ps.executeUpdate();
-            System.out.println("Partie modifiée avec succès.");
+            return ps.executeUpdate();
 
-        } catch (Exception e) {
-            System.out.println("Erreur update partie = " + e.getMessage());
-        }
-    }
-
-    public static void delete(int id) {
-        String sql = "DELETE FROM partie WHERE id_partie = ?";
-
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ps.executeUpdate();
-            System.out.println("Partie supprimée avec succès.");
-
-        } catch (Exception e) {
-            System.out.println("Erreur delete partie = " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Erreur updatePartie : " + e.getMessage());
+            return 0;
         }
     }
 
-    public static int getBestScore() {
-        String sql = "SELECT MAX(score) AS meilleur_score FROM partie";
+    public int deletePartie(long idPartie) {
+        String sql = "DELETE FROM public.partie WHERE id_partie = ?";
 
-        try (Connection con = Connectivity.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection c = Connectivity.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 
-            if (rs.next()) {
-                return rs.getInt("meilleur_score");
-            }
+            ps.setLong(1, idPartie);
 
-        } catch (Exception e) {
-            System.out.println("Erreur getBestScore = " + e.getMessage());
+            return ps.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Erreur deletePartie : " + e.getMessage());
+            return 0;
         }
-
-        return 0;
     }
-    
 }
