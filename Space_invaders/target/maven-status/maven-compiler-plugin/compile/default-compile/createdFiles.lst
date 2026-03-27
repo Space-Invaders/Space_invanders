@@ -1,0 +1,15 @@
+app/JframeMain$2.class
+model/Objet.class
+app/MainJoueur.class
+POOJDBC/Connectivity.class
+dao/JoueurDAO.class
+model/Joueur.class
+dao/PartieDAO.class
+POOJDBC/JakartaRestConfiguration.class
+model/Partie.class
+app/JakartaEE10Resource.class
+app/JframeMain.class
+POOJDBC/Database.class
+app/JframeMain$1.class
+app/NewMain.class
+app/MainPartie.class
