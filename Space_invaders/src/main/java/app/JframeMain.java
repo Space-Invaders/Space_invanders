@@ -134,11 +134,13 @@ public class JframeMain {
                 JframeMain.class.getResource("/images/background1.png")
         ).getImage();
 
-        final int OBJECTIF_ALIENS = 5;
+        final int OBJECTIF_ALIENS = 15;
         final boolean[] victoire = {false};
 
         final boolean[] gaucheAppuye = {false};
         final boolean[] droiteAppuye = {false};
+        final boolean[] hautAppuye = {false};
+        final boolean[] DAppuye = {false};
 
         JPanel panelJeu = new JPanel() {
             @Override
@@ -271,14 +273,7 @@ public class JframeMain {
                         }
 
                         break;
-
-                    case KeyEvent.VK_Q:
-                        if (jeuTermine[0]) {
-                            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                        }
-                        break;
                 }
-
             }
 
             @Override
@@ -320,15 +315,19 @@ public class JframeMain {
             @Override
             public void onCollision(Objet alien, Objet vaisseau) {
 
-                if (!jeuTermine[0] && aliensDetruits[0] >= OBJECTIF_ALIENS) {
-                    jeuTermine[0] = true;
-                    victoire[0] = false;
-                }
+                jeuTermine[0] = true;
+                victoire[0] = false;
 
+
+                if (!partieEnregistree[0]) {
+                    enregistrerPartie(ID_JOUEUR_FIXE, score[0], aliensDetruits[0], "PERDU");
+                    afficherHistorique();
+                    partieEnregistree[0] = true;
+                }
             }
         };
 
-        Timer timerJeu = new Timer(40, e -> {
+        Timer timerJeu = new Timer(20, e -> {
             if (jeuTermine[0]) {
                 panelJeu.repaint();
                 return;
@@ -360,6 +359,20 @@ public class JframeMain {
                 }
             }
 
+            
+            if (!jeuTermine[0] && aliensDetruits[0] >= OBJECTIF_ALIENS) {
+                jeuTermine[0] = true;
+                victoire[0] = true;
+
+                if (!partieEnregistree[0]) {
+                    enregistrerPartie(ID_JOUEUR_FIXE, score[0], aliensDetruits[0], "GAGNE");
+                    afficherHistorique();
+                    partieEnregistree[0] = true;
+                }
+            }
+            
+            
+
             for (int i = 0; i < tableauAlien.length; i++) {
                 tableauAlien[i].y = tableauAlien[i].y + 4;
 
@@ -379,17 +392,6 @@ public class JframeMain {
                             break;
                         }
                     }
-                }
-            }
-
-            if (!jeuTermine[0] && aliensDetruits[0] >= OBJECTIF_ALIENS) {
-                jeuTermine[0] = true;
-                victoire[0] = true;
-
-                if (!partieEnregistree[0]) {
-                    enregistrerPartie(ID_JOUEUR_FIXE, score[0], aliensDetruits[0], "GAGNE");
-                    afficherHistorique();
-                    partieEnregistree[0] = true;
                 }
             }
 
