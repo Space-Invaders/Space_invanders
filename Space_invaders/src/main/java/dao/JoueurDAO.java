@@ -10,8 +10,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import model.Partie;
 
 /**
  *
@@ -106,5 +108,39 @@ public class JoueurDAO {
             System.out.println("Erreur deleteJoueur : " + e.getMessage());
             return 0;
         }
+    }
+
+    public static void enregistrerPartie(int idJoueur, int score, int aliensDetruits, String resultat) {
+        PartieDAO partieDAO = new PartieDAO();
+
+        Partie partie = new Partie();
+        partie.setIdJoueur(idJoueur);
+        partie.setScore(score);
+        partie.setAliensDetruits(aliensDetruits);
+        partie.setResultat(resultat);
+        partie.setDatePartie(new Timestamp(System.currentTimeMillis()));
+
+        int res = partieDAO.createPartie(partie);
+
+        if (res > 0) {
+            System.out.println("Partie enregistrée avec succès !");
+        } else {
+            System.out.println("Erreur lors de l'enregistrement de la partie !");
+        }
+    }
+
+    public static int getBestScore() {
+        PartieDAO partieDAO = new PartieDAO();
+        List<Partie> parties = partieDAO.findAll();
+
+        int bestScore = 0;
+
+        for (Partie p : parties) {
+            if (p.getScore() > bestScore) {
+                bestScore = p.getScore();
+            }
+        }
+
+        return bestScore;
     }
 }

@@ -8,6 +8,7 @@ package app;
  *
  * @author luidjy
  */
+import dao.JoueurDAO;
 import dao.PartieDAO;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -64,7 +65,7 @@ public class JframeMain {
         PartieDAO partieDAO = new PartieDAO();
         List<Partie> parties = partieDAO.findAll();
 
-        System.out.println("===== HISTORIQUE DES PARTIES =====");
+        System.out.println("HISTORIQUE DES PARTIES ");
 
         for (Partie p : parties) {
             System.out.println("Id Partie : " + p.getIdPartie());
@@ -83,7 +84,7 @@ public class JframeMain {
 
         Random hasard = new Random();
 
-        final int ID_JOUEUR_FIXE = 6;
+        final int ID_JOUEUR_FIXE = 1;
 
         final Objet vaisseau = new Objet("Vaisseau", 560, 650, 80, 80, 0);
 
@@ -129,6 +130,13 @@ public class JframeMain {
                 JframeMain.class.getResource("/images/alien-blue.png")
         ).getImage();
 
+        final Image background = new ImageIcon(
+                JframeMain.class.getResource("/images/background1.png")
+        ).getImage();
+
+        final int OBJECTIF_ALIENS = 5;
+        final boolean[] victoire = {false};
+
         final boolean[] gaucheAppuye = {false};
         final boolean[] droiteAppuye = {false};
 
@@ -137,8 +145,7 @@ public class JframeMain {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                g.setColor(Color.BLACK);
-                g.fillRect(0, 0, getWidth(), getHeight());
+                g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
 
                 g.setColor(Color.WHITE);
                 g.setFont(g.getFont().deriveFont(22f));
@@ -147,9 +154,19 @@ public class JframeMain {
                 g.drawString("Best Score : " + getBestScore(), 20, 90);
 
                 if (jeuTermine[0]) {
-                    g.setColor(Color.RED);
                     g.setFont(g.getFont().deriveFont(50f));
-                    g.drawString("GAME OVER", 430, 400);
+
+                    if (victoire[0]) {
+                        g.setColor(Color.GREEN);
+                        g.drawString("VICTOIRE", 450, 350);
+                    } else {
+                        g.setColor(Color.RED);
+                        g.drawString("GAME OVER", 430, 350);
+                    }
+
+                    g.setColor(Color.WHITE);
+                    g.setFont(g.getFont().deriveFont(25f));
+                    g.drawString("Appuyer sur R pour rejouer", 420, 420);
                 }
 
                 for (int i = 0; i < tableauAlien.length; i++) {
@@ -236,7 +253,32 @@ public class JframeMain {
                             indexBalle[0] = 0;
                         }
                         break;
+
+                    case KeyEvent.VK_R:
+
+                        if (jeuTermine[0]) {
+                            restartJeu.resetJeu(
+                                    vaisseau,
+                                    balles,
+                                    tableauAlien,
+                                    indexBalle,
+                                    score,
+                                    aliensDetruits,
+                                    jeuTermine,
+                                    partieEnregistree,
+                                    hasard
+                            );
+                        }
+
+                        break;
+
+                    case KeyEvent.VK_Q:
+                        if (jeuTermine[0]) {
+                            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                        }
+                        break;
                 }
+
             }
 
             @Override
@@ -250,6 +292,7 @@ public class JframeMain {
                     case KeyEvent.VK_RIGHT:
                         droiteAppuye[0] = false;
                         break;
+
                 }
             }
         });
@@ -277,17 +320,15 @@ public class JframeMain {
             @Override
             public void onCollision(Objet alien, Objet vaisseau) {
 
-                jeuTermine[0] = true;
-
-                if (!partieEnregistree[0]) {
-                    enregistrerPartie(ID_JOUEUR_FIXE, score[0], aliensDetruits[0], "PERDU");
-                    afficherHistorique();
-                    partieEnregistree[0] = true;
+                if (!jeuTermine[0] && aliensDetruits[0] >= OBJECTIF_ALIENS) {
+                    jeuTermine[0] = true;
+                    victoire[0] = false;
                 }
+
             }
         };
 
-        Timer timerJeu = new Timer(50, e -> {
+        Timer timerJeu = new Timer(40, e -> {
             if (jeuTermine[0]) {
                 panelJeu.repaint();
                 return;
@@ -338,6 +379,17 @@ public class JframeMain {
                             break;
                         }
                     }
+                }
+            }
+
+            if (!jeuTermine[0] && aliensDetruits[0] >= OBJECTIF_ALIENS) {
+                jeuTermine[0] = true;
+                victoire[0] = true;
+
+                if (!partieEnregistree[0]) {
+                    enregistrerPartie(ID_JOUEUR_FIXE, score[0], aliensDetruits[0], "GAGNE");
+                    afficherHistorique();
+                    partieEnregistree[0] = true;
                 }
             }
 
